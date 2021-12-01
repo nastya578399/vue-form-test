@@ -1,6 +1,7 @@
 <template>
   <div class="container">
-    <h2 class="black">Форма подачи заявки в отдел сервиса и качества</h2>
+    <div v-if="responseDate !== false">
+      <h2 class="black">Форма подачи заявки в отдел сервиса и качества</h2>
     <form class="card" @submit.prevent="submitHandler">
       <div class="form-control">
         <label for="city">Ваш филиал <small>*</small></label>
@@ -54,17 +55,25 @@
 
       <button type="submit" class="btn primary" :disabled="!isValidForm">Отправить</button>
     </form>
+    </div>
+
+    <div v-else>
+      <modal-components></modal-components>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import ModalComponents from './ModalComponents.vue'
 
 export default {
   name: 'HelloWorld',
   data () {
     return {
       info: null,
+      response: true,
+      responseDate: null,
       form: {
         city: '',
         online: false,
@@ -129,7 +138,7 @@ export default {
 
       return isValid
     },
-    submitHandler () {
+    async submitHandler () {
       if (this.formIsValid() && this.formCityValid() && this.formCauseValid()) {
         console.group('Form Data')
         console.log('City', this.form.city)
@@ -138,8 +147,30 @@ export default {
         console.log('Обращение2', this.form.theme)
         console.log('Описание', this.form.desk)
         console.groupEnd()
+        const request = await fetch('https://6196084574c1bd00176c6ff1.mockapi.io/api/v1/send-form', {
+          method: 'Post',
+          headers: {
+            'Contetnt-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            city: this.form.city,
+            online: this.form.online,
+            cause: this.form.cause,
+            theme: this.form.theme,
+            desk: this.form.desk
+          })
+        })
+        console.log(request)
+
+        this.responseDate = await request.json()
+
+        console.log(this.responseDate.success)
+        return this.responseDate.success
       }
     }
+  },
+  components: {
+    ModalComponents
   }
 }
 </script>

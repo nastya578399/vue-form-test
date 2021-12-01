@@ -1,14 +1,14 @@
 <template>
-  <HelloWorld />
+  <FormComponents />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import FormComponents from './components/FormComponents.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    FormComponents
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="responseDate !== false">
+    <div v-if="!isModalOpen">
       <h2 class="black">Форма подачи заявки в отдел сервиса и качества</h2>
     <form class="card" @submit.prevent="submitHandler">
       <div class="form-control">
@@ -39,7 +39,7 @@
       </div>
 
       <div class="form-checkbox">
-        <span class="label">Описание проблемы <small v-if="form.errors.desk">{{ form.errors.desk }}</small></span>
+        <span class="label">Описание проблемы <small>*</small></span>
         <div class="checkbox">
           <textarea type="text" class="desk" v-model.trim="form.desk"></textarea>
         </div>
@@ -57,8 +57,8 @@
     </form>
     </div>
 
-    <div v-else>
-      <modal-components></modal-components>
+    <div v-if="isModalOpen">
+      <modal-components @close="closeModal"></modal-components>
     </div>
   </div>
 </template>
@@ -74,6 +74,7 @@ export default {
       info: null,
       response: true,
       responseDate: null,
+      isModalOpen: false,
       form: {
         city: '',
         online: false,
@@ -164,9 +165,26 @@ export default {
 
         this.responseDate = await request.json()
 
-        console.log(this.responseDate.success)
-        return this.responseDate.success
+        console.log(this.responseDate)
+        if (this.responseDate.success) {
+          this.form.city = ''
+          this.form.online = ''
+          this.form.cause = ''
+          this.form.theme = ''
+          this.form.desk = ''
+          this.isModalOpen = true
+        } else if (!this.responseDate.success) {
+          alert('Ошибка отправки заявки')
+        }
+        return this.isModal
       }
+    },
+    closeModal () {
+      if (this.isModalOpen) {
+        this.isModalOpen = false
+      }
+
+      return this.isModalOpen
     }
   },
   components: {
